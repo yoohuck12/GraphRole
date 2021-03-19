@@ -4,25 +4,40 @@
 [![Coverage Status](https://coveralls.io/repos/github/dkaslovsky/GraphRole/badge.svg?branch=master)](https://coveralls.io/github/dkaslovsky/GraphRole?branch=master)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/GraphRole)
 
-Automatic feature extraction and node role assignment for transfer learning on graphs; based on the ReFeX/RolX algorithms [1, 2] of Henderson, et al.
+그래프 전이 학습을 위한 자동 특색 추출과 노드 역할 할당
+ReFeX/RolX 알고리즘을 기반으로 구현하였다.
 
 <p align="center">
 <img src="./examples/karate_graph.png" width=600>
 </p>
 
 ### Overview
-A fundamental problem for learning on graphs is extracting meaningful features.  `GraphRole` provides the `RecursiveFeatureExtractor` class to automate this process by extracting recursive features capturing local and neighborhood ("regional") structural properties of a given graph.  The specific implementation follows that of the ReFeX algorithm [1].  Node features (e.g., degree) and ego-net features (e.g., neighbors, number of internal vs. external edges) are extracted and then recursively aggregated over each node's neighbors' features until no additional information is encoded.  As is shown in [1], these recursive, "regional" features facilitate node classification and perform quite well in transfer learning tasks.
+그래프 학습에서 가장 근본적인 문제는 의미있는 특색들을 추출해내는 것이다.
+GraphRole 은 'RecursiveFeatureExtractor' 클래스를 제공해, 이 과정을 자동으로
+할 수 있는 기능을 제공한다. 주어진 그래프에서 지역적인, 그리고 이웃들과의
+구조적 속성을 찾아내고 재귀적으로 특색을 추출해낸다.
+구체적인 구현은 ReFex 알고리즘[1]을 이용해냈다.
+노드의 특색(degree) 과 ego-net 특색 (이웃, 내/외부의 edge 개수)들이 추출되고
+추가적인 정보가 더이상 누적되지 않을때 까지 재귀적으로 각 노드의 이웃 특색들과
+aggregate 된다. [1] 에서 보인것 처럼, 지역적인 특색은 node classification 에서
+활용될 수 있으며, 전이 학습 작업들에서도 잘 동작한다.
 
-`GraphRole` also provides the `RoleExtractor` class for node role assignment (a form of classification).  Different nodes play different structural roles in a graph, and using recursive regional features, these roles can be identified and assigned to collections of nodes.  As they are structural in nature, node roles differ from and are often more intuitive than the commonly used communities of nodes.  In particular, roles can generalize across graphs whereas the notion of communities cannot [2].  Identification and assignment of node roles has been shown to facilitate many graph learning tasks.
+GraphOle 은 또한 'RoleExtractor' 클래스를 제공해 노드의 역할 할당을 제공한다.
+그래프에서 서로 다른 노드는 서로 다른 구조적인 역할을 하고, 재귀적인 지역
+특색을 사용하여 이러한 역할들이 밝혀지고, 노드들의 집합들에 할당된다.
+자연적인 구조이기 때문에 노드 커뮤니티에서 주로 사용되는 것과 다르게 좀 더
+직관적이다. 세부적으로 역할은 그래프에서 일반화될 수 있지만, 커뮤니티에서는
+그렇지 않다.[2] 노드의 역할을 알아내고 할당하는 것은 다양한 그래프 학습 작업들
+에서 사용될 수 있다.
 
-Please see [1, 2] for more technical details.
+기술적인 세부사항은 [1,2] 에서 찾아봐라.
 
 ### Installation
-This package is hosted on PyPI and can be installed via `pip`:
+이 패키지는 pip 을 사용해서 설치될 수 있다.
 ```
 $ pip install graphrole
 ```
-To instead install from source:
+소스코드로 설치하고자 하면 다음을 사용한다.
 ```
 $ git clone https://github.com/dkaslovsky/GraphRole.git
 $ cd GraphRole
@@ -30,56 +45,69 @@ $ python setup.py install
 ```
 
 ### Example
-An example of `GraphRole` usage is found in the `examples` directory.  The notebook
+GraphRole 의 사용 예제는 'example' 폴더에 있다. 노트북
 [example.ipynb](./examples/example.ipynb)
 (also available via [nbviewer](https://nbviewer.jupyter.org/github/dkaslovsky/GraphRole/blob/master/examples/example.ipynb))
-walks through feature extraction and role assignment for the well-known `karate_club_graph` that is included with `NetworkX`.  Recursive features are extracted and used to learn role assignments for each node in the graph.  The graph is shown above with each node colored corresponding to its role.
+은 karate_club_graph 을 사용해 특색 추출부터 역할 할당까지 수행한다.
+이것은 networkx 에 포함되어 있다.
+재귀적인 특색은 추출된 뒤 역할 할당 학습을 위해 사용되며, 그래프에서 각각의 노드에
+대해 수행된다. 위의 그래프는 각각의 노드가 역할에 기반되어 색칠된 것을 보여준다.
 
-The extracted roles reflect structural properties of the graph at the node level.  The nodes `0` and `33` (dark green) are central to the graph and are connected to many other nodes.  Nodes `1`, `2`, `3`, and `32` are assigned to a similar role (red).  In contrast, the roles colored as dark blue, light blue, and pink are found at the periphery of the graph.  Notably, nodes need not be near one another to be assigned to the same role; instead nodes with similar properties are grouped together across the graph by their role assignments.
+추출된 역할은 그래프의 노드 레벨에서 구조적인 속성을 반영한다.
+노드 '0', '33' (어두운 초록)는 그래프의 중심이며, 다른 많은 노드와 연결되어 있다.
+노드 '1','2','3','32'(빨강) 은 비슷한 역할로 할당되었다.
+반면에 어두운 파랑, 밝은 파랑, 핑크로 칠해진 노드는 그래프에서 중요하지 않은 것으로 보인다.
+주목할만한 것은 같은 역할을 위해서 노드가 서로 연결되어 있을, 주변에 있을 필요가
+없다는 것이다. 대신 비슷한 속성을 가진 노드들이 역할 할당에서 비슷한 역할을
+할당받게 된다.
 
-Although not reflected by this example, weighted and directed graphs are also supported and will yield weighted and directed variants of the extracted features.
+이 예제에는 나와있지 않지만, weighted 그리고 directed 그래프도 역시 사용될 수 있으며
+여기서 추출된 특색들도 사용될 수 있다.
 
 ### Usage
-For general usage, begin by importing the two feature and role extraction classes:
+일반적으로는 특색 및 역할 추출을 위한 2개의 클래스를 import 한다.
 ```
 >>> from graphrole import RecursiveFeatureExtractor, RoleExtractor
 ```
-Features are then extracted from a graph `G` into a `pandas.DataFrame`:
+특색은 그래프 'G' 로부터 추출되며, 'pandas.DataFrame' 형태이다.
 ```
 >>> feature_extractor = RecursiveFeatureExtractor(G)
 >>> features = feature_extractor.extract_features()
 ```
-Next, these features are used to learn roles.  The number of roles is automatically determined by
-a model selection procedure when `n_roles=None` is passed to the `RoleExtractor` class instance.
-Alternatively, `n_roles` can be set to a desired number of roles to be extracted.
+다음으로 특색들이 역할을 학습하기 위해서 사용된다.
+'n_roles=None' 가 'RoleExtractor' 클래스에 전달되면 역할의 수는 자동으로 모델 선택 과정에서 정해진다.
+대신에 'n_roles' 를 인자로 줄 수도 있다.
 ```
 >>> role_extractor = RoleExtractor(n_roles=None)
 >>> role_extractor.extract_role_factors(features)
 ```
-The role assignment for each node can be retrieved as a dictionary:
+각 노드에 대한 역할 할당은 dictionary 형태로 추출된다.
 ```
 >>> role_extractor.roles
 ```
-Alternatively, roles can be viewed as a soft assignment and a node's percent membership to each role
-can be retrieved as a `pandas.DataFrame`:
+역할은 소프트 할당으로 보여질 수도 있으며, 노드의 멤버쉽 퍼센트는 'pandas.DataFrame'
+형태로 추출될 수 있다.
 ```
 >>> role_extractor.role_percentage
 ```
 
 ### Graph Interfaces
-An interface for graph data structures is provided in the `graphrole.graph.interface` module.  Implementations for `networkx` and `igraph` are included.
+그래프 데이터 구조를 위한 인터페이스는 'graphole.graph.interface' 모듈로서
+제공된다. 'networkx', 'igraph' 를 위한 구현이 포함된다.
 
-The `igraph` package is not included in `requirements.txt` and thus will need to be manually installed
-if desired.  This is due to additional installation requirements beyond `pip install python-igraph`; see
-the [igraph documentation](https://igraph.org/python/#pyinstall) for more details.  Note that all tests
-that require `igraph` will be skipped if it is not installed.
+'igraph' 패키지는 'requirements.txt' 에 들어있지는 않기 때문에 필요하다면
+손으로 설치해야 한다. 이것은 단순히 `pip install python-igraph` 외에도 더
+설치할게 필요하기 때문이다. 자세한것은
+[igraph documentation](https://igraph.org/python/#pyinstall) 를 보자.
+만약 igraph 가 설치되어 있지 않다면 igraph 를 위한 테스트는 스킵된다.
 
-To add an implementation of an additional graph library or data structure:
-1. Subclass the `BaseGraphInterface` ABC in `graphrole.graph.interface.base.py` and implement the required methods
-1. Update the `INTERFACES` dict in `graphrole.graph.interface.__init__.py` to make the new subclass discoverable
-1. Add tests by trivially implementing a `setUpClass()` classmethod of a subclass of `BaseGraphInterfaceTest.BaseGraphInterfaceTestCases` in the `tests.test_graph.test_interface.py` module
-1. If desired, a similar procedure allows the feature extraction tests to be run using the added interface
-by again trivially implementing a `setUpClass()` classmethod of a subclass of `BaseRecursiveFeatureExtractorTest.TestCases` in the `tests.test_features.test_extract.py` module
+다른 그래프 라이브러리나 데이터 구조의 구현들을 넣고 싶다면,
+1. 'BaseGraphInterface' ABC 를 subclass 화 하고, 필요한 함수를 구현해라.
+  1. graphrole.graph.interface.base.py 를 보자
+1. graphrole.graph.interface.__init__.py 의 'INTERFACES' dict 을 업데이트하여
+새로운 서브 클래스를 찾을 수 있도록 하자.
+1. 'setUpClass()' 클래스 함수를 간단하게 구현하여 테스트를 추가한다.
+1. 필요하다면 추가된 인터페이스를 활용해서 특색 추출 테스트를 하라.
 
 ### Future Development
 Model explanation ("sense making") will be added to the `RoleExtractor` class in a future release.
